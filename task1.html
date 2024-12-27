@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>India Image Gallery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        .gallery {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: peachpuff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .thumbnails {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            padding: 20px;
+        }
+
+        .thumbnail {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .thumbnail:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .slideshow-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .slideshow {
+            max-width: 80%;
+            max-height: 80%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .slideshow img {
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            object-fit: contain;
+            /* Ensure the image fits without being cropped */
+        }
+
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 30px;
+            color: white;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        .prev,
+        .next {
+            position: absolute;
+            top: 50%;
+            font-size: 30px;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 50%;
+            z-index: 1001;
+        }
+
+        .prev {
+            left: 20px;
+            transform: translateY(-50%);
+        }
+
+        .next {
+            right: 20px;
+            transform: translateY(-50%);
+        }
+
+        /* Automatic slideshow at the bottom */
+        .auto-slideshow-container {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: peachpuff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .auto-slideshow img {
+            width: 100%;
+            height: 100%;
+            max-width: 300px;
+            /* Limit the width */
+            max-height: 300px;
+            /* Limit the height */
+            margin: 0 auto;
+            object-fit: contain;
+            /* Prevent cropping */
+            border-radius: 10px;
+        }
+
+        /* Responsive layout for smaller screens */
+        @media screen and (max-width: 768px) {
+            .auto-slideshow-container {
+                width: 100%;
+                padding: 10px;
+            }
+
+            .auto-slideshow img {
+                max-width: 200px;
+                /* Smaller width on mobile */
+                max-height: 200px;
+                /* Smaller height on mobile */
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="gallery">
+        <h1>Iconic places of India:</h1>
+        <div class="thumbnails">
+            <!-- Gallery thumbnails -->
+            <img src="tajmahal.jpeg" alt="Taj Mahal" title="tajmahal" class="thumbnail" onclick="openSlideshow(0)">
+            <img src="jaipur.jpeg" alt="Jaipur Palace" class="thumbnail" onclick="openSlideshow(1)">
+            <img src="kerala.jpeg" alt="Kerala" class="thumbnail" onclick="openSlideshow(2)">
+            <img src="varanasighat.jpeg" alt="Varanasi Ghat" class="thumbnail" onclick="openSlideshow(3)">
+            <img src="qutubminar.jpeg" alt="Qutub Minar" class="thumbnail" onclick="openSlideshow(4)">
+            <img src="bangloreskyline.jpeg" alt="Bangalore Skyline" class="thumbnail" onclick="openSlideshow(5)">
+            <img src="hawamahal.jpeg" alt="Hawa Mahal" class="thumbnail" onclick="openSlideshow(6)">
+            <img src="sanchistupa.jpeg" alt="Sanchi Stupa" class="thumbnail" onclick="openSlideshow(7)">
+        </div>
+
+        <!-- Slideshow Modal -->
+        <div id="slideshowModal" class="slideshow-modal">
+            <span class="close" onclick="closeSlideshow()">&#10006;</span>
+            <div class="slideshow">
+                <img src="" alt="Slideshow Image" id="slideshowImage">
+                <span class="prev" onclick="prevSlide()">&#10094;</span>
+                <span class="next" onclick="nextSlide()">&#10095;</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Automatic Slideshow at the bottom -->
+    <div class="auto-slideshow-container">
+
+        <div class="auto-slideshow">
+            <img src="tajmahal.jpeg" alt="Taj Mahal" id="autoSlideshowImage">
+        </div>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+
+        const images = [
+            "tajmahal.jpeg",
+            "jaipur.jpeg",
+            "kerala.jpeg",
+            "varanasighat.jpeg",
+            "qutubminar.jpeg",
+            "bangloreskyline.jpeg",
+            "hawamahal.jpeg",
+            "sanchistupa.jpeg"
+        ];
+
+        function openSlideshow(index) {
+            const modal = document.getElementById("slideshowModal");
+            const slideshowImage = document.getElementById("slideshowImage");
+
+            modal.style.display = "flex";
+            slideshowImage.src = images[index];
+            currentSlideIndex = index;
+        }
+
+        function closeSlideshow() {
+            const modal = document.getElementById("slideshowModal");
+            modal.style.display = "none";
+        }
+
+        function nextSlide() {
+            currentSlideIndex = (currentSlideIndex + 1) % images.length;
+            document.getElementById("slideshowImage").src = images[currentSlideIndex];
+        }
+
+        function prevSlide() {
+            currentSlideIndex = (currentSlideIndex - 1 + images.length) % images.length;
+            document.getElementById("slideshowImage").src = images[currentSlideIndex];
+        }
+
+        // Automatic Slideshow at the bottom
+        function startAutoSlideshow() {
+            setInterval(() => {
+                currentSlideIndex = (currentSlideIndex + 1) % images.length;
+                document.getElementById("autoSlideshowImage").src = images[currentSlideIndex];
+            }, 3000); // Change slide every 3 seconds
+        }
+
+        startAutoSlideshow(); // Start the automatic slideshow when the page loads
+    </script>
+
+</body>
+
+</html>
